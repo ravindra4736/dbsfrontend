@@ -1,63 +1,55 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+/**
+ * API Layer - Backward Compatibility Wrapper
+ * Re-exports the new API layer for existing code
+ * 
+ * @deprecated Import from @/lib/api instead
+ */
 
-import { env } from "@/config/env";
+// Re-export everything from the new API layer
+export {
+  apiClient as api,
+  createApiClient,
+  request,
+  setupInterceptors,
+  setupRequestInterceptor,
+  setupResponseInterceptor,
+  setAuthTokens,
+  clearAuthTokens,
+  getAccessToken,
+  getRefreshToken,
+  isAuthenticated,
+  handleApiError,
+  getErrorMessage,
+  isUnauthorizedError,
+  isValidationError,
+  isNetworkError,
+  isTimeoutError,
+  ApiError,
+  HttpStatusCode,
+  ApiErrorCode,
+  API_PATHS,
+  AUTH_ENDPOINTS,
+  USER_ENDPOINTS,
+  ROLE_ENDPOINTS,
+  PERMISSION_ENDPOINTS,
+  CMS_ENDPOINTS,
+  MEDIA_ENDPOINTS,
+  DASHBOARD_ENDPOINTS,
+  SETTINGS_ENDPOINTS,
+  API_ENDPOINTS,
+  type ApiResponse,
+  type ApiErrorResponse,
+  type ValidationError,
+  type ValidationErrorResponse,
+  type PaginationMeta,
+  type PaginatedResponse,
+  type LoginRequest,
+  type LoginResponse,
+  type RefreshTokenRequest,
+  type RefreshTokenResponse,
+  type LogoutResponse,
+  type TokenStorage,
+} from '@/lib/api';
 
-const api: AxiosInstance = axios.create({
-  baseURL: env.apiUrl,
-  timeout: 10000,
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-});
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const accessToken = window.localStorage.getItem("accessToken");
-    if (accessToken) {
-      config.headers = config.headers ?? {};
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-  }
-
-  return config;
-});
-
-api.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      if (typeof window !== "undefined") {
-        const refreshToken = window.localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          // Foundation only: refresh handling is prepared but not implemented.
-          return Promise.reject(error);
-        }
-      }
-    }
-
-    return Promise.reject(error);
-  },
-);
-
-export const setAuthTokens = (accessToken: string, refreshToken?: string) => {
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem("accessToken", accessToken);
-    if (refreshToken) {
-      window.localStorage.setItem("refreshToken", refreshToken);
-    }
-  }
-};
-
-export const clearAuthTokens = () => {
-  if (typeof window !== "undefined") {
-    window.localStorage.removeItem("accessToken");
-    window.localStorage.removeItem("refreshToken");
-  }
-};
-
-export default api;
+// Default export for backward compatibility
+export { default } from '@/lib/api';
